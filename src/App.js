@@ -10,7 +10,7 @@ function App() {
   const axios = require('axios').default;
   const [countries, setCountries] = useState([]);
   const [allCountries, setAllCountries] = useState([]);
-  const [searchType, setSearchType] = useState("capital");
+  const [searchType, setSearchType] = useState("all");
 
   useEffect(() => {
     fetchAll();
@@ -30,14 +30,32 @@ function App() {
   }
 
   function handleChange(e) {
-    if (e.target.value.length > 0) {
-      let keyword = e.target.value.toString().toLowerCase();
-      let noUndefCountries = allCountries.filter(country => country[searchType])
-      let filteredCountries = noUndefCountries.filter(country => country[searchType].toLowerCase().includes(keyword))
-      setCountries(filteredCountries)
+    let keyword = e.target.value.toString().toLowerCase();
+    if (searchType !== 'all') {
+      if (e.target.value.length > 0) {
+        let noUndefCountries = allCountries.filter(country => country[searchType])
+        let filteredCountries = noUndefCountries.filter(country => country[searchType].toLowerCase().includes(keyword))
+        setCountries(filteredCountries)
+      }
+      else {
+        setCountries(allCountries)
+      }
     }
     else {
-      setCountries(allCountries)
+        let newCountries = []
+        allCountries.map((country) => {
+          let keys = Object.keys(country);
+          let filtered = keys.filter((key) => {
+            if(typeof(country[key]) === "string"){
+              return country[key].toString().toLowerCase().includes(keyword)
+            }
+          })
+          if (filtered.length > 0) {
+            console.log(country)
+            newCountries.push(country)
+          }
+        })
+        setCountries(newCountries)
     }
   }
 
@@ -50,7 +68,7 @@ function App() {
     <div>
       <Container>
         <Form column={'sm'}>
-        <Row>
+          <Row>
             <Col>
               <Form.Label>Search</Form.Label>
               <Form.Control onChange={handleChange} />
@@ -58,14 +76,18 @@ function App() {
             <Col>
               <Form.Label>By</Form.Label>
               <Form.Select onChange={handleSelect}>
-                <option value="capital">Capital</option>
+                <option value="all">All</option>
                 <option value="name">Name</option>
+                <option value="capital">Capital</option>
                 <option value="region">Region</option>
               </Form.Select>
             </Col>
           </Row>
         </Form>
         <CountryTable countries={countries} />
+        {countries.length < 1 &&
+          <h1>No country found!</h1>
+        }
       </Container>
     </div>
   );
