@@ -109,7 +109,6 @@ function App() {
             </Col>
           </Row>
         </Form>
-        <button onClick={() => console.log(allCountries)} />
         <CountryTable countries={countries} />
         {countries.length < 1 && <h1>No country found!</h1>}
       </Container>
